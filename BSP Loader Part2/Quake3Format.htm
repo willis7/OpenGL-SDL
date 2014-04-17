@@ -1,0 +1,853 @@
+<html>
+
+<head>
+<TITLE>GameTutorials - Quake 3 BSP Format</TITLE>
+<META NAME="Description" CONTENT="GameTutorials brings you the best programming tutorials from beginner (NO experience) to advanced topics AND keeps you in touch with all the latest game industry news.">
+<META NAME="Keywords" CONTENT="programming tutorials, video games, game tutorials, programming, C, C++, Windows, Win32, OpenGL, DirectX">
+<link rel="stylesheet" href="../default.css">
+</head>
+
+<body bgcolor="#000000" text="#F0F0FF" link="#7396DC" marginwidth="0" marginheight="0" leftmargin="0" topmargin="0">
+
+<!-- main table -->
+<table border="0" cellspacing="0" cellpadding="0">
+<tr>                      
+	<!-- left column -->
+	<td valign="top" background="http://www.gametutorials.com/images/Left_Seamless.jpg" width="211" height="661">
+        <p align="center">
+        <map name="FPMap0">
+        <area href="http://www.gametutorials.com" shape="rect" coords="50, 270, 127, 300">
+        <area href="http://www.gametutorials.com/Tutorials/tutorials.htm" shape="rect" coords="46, 317, 131, 348">
+        <area href="http://www.gametutorials.com/forum/" shape="rect" coords="46, 374, 134, 402">
+        <area href="http://www.gametutorials.com/CodeDump/CodeDump_Pg1.htm" shape="rect" coords="49, 424, 142, 458">
+        <area href="http://www.gametutorials.com/D&G/D&G_Main.htm" shape="rect" coords="50, 480, 157, 513">
+        <area href="http://gametutorials.tech-engine.com/" shape="rect" coords="47, 536, 138, 571">
+        <area href="http://www.gametutorials.com/links.htm" shape="rect" coords="49, 594, 137, 627">
+        </map><img border="0" src="http://www.gametutorials.com/images/Left.jpg" usemap="#FPMap0" width="211" height="661"></p>
+        
+        <p><br></p> <!-- Spacing -->
+        <p align="center"><font face="Verdana" size="1">Link to us:</font><br>
+        <a href="http://www.gametutorials.com/download/GT_Link.zip"><img border="0" src="http://www.gametutorials.com/images/GameTutorials_Link.jpg" width="88" height="31"></a></p>
+      	
+        
+	</td>
+	<!-- center column -->
+	<td valign="top">
+		<table border="0" cellpadding="0" cellspacing="0" height="568">
+		<tr>    
+			<td valign="top" height="207" width="609">
+                <p><img border="0" src="http://www.gametutorials.com/images/Title.jpg" width="609" height="207"></p>
+			</td>
+		</tr>
+		<tr>
+			<td valign="top" align="center" height="361">
+				<!-- main content area -->
+				<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" width="561">
+	            <tr>
+              		<td width="559">
+              		
+  
+  <p align="center"><br><b><span style="font-size: 20pt; mso-bidi-font-size: 10.0pt">Unofficial</span></b><span style="FONT-SIZE: 20pt; mso-bidi-font-size: 10.0pt"><b>
+  Quake
+  3 BSP Format<br>
+  </b>
+  </span><span style="mso-bidi-font-size: 10.0pt"><font size="3"><b>Author:&nbsp;&nbsp;&nbsp;&nbsp;
+  Ben &quot;Digiben&quot; Humphrey</b></font></span><b><span style="FONT-SIZE: 20pt; mso-bidi-font-size: 10.0pt"><O:P>
+  </O:P>
+  </span></b></p> 
+  <p class="MsoBodyText">
+  &nbsp;
+  </p>
+  <table width="571">
+    <tr bgColor="#2165ae">
+      <td height="17" width="563"><b><font size="5">Introduction</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoNormal">This document was created as an aid to the <b>Quake3 BSP</b>
+  tutorial series featured on <a href="http://www.GameTutorials.com"><b>www.GameTutorials.com</b></a>.&nbsp;
+  &nbsp;<O:P>
+  &nbsp;The information is what I have found, and it's possibly that it's
+  incorrect or just blatently wrong.&nbsp; I suggest you use this as a reference
+  and a guide, not the end all file format doc for the Quake3 .bsp file
+  format.&nbsp; With that out of the way, let's load some sweet levels!
+  </p>
+  <p class="MsoNormal">The Quake3 level format, .bsp, stores most of the
+  information about the level.&nbsp; There are other files such as .shader,
+  .arena and .aas, which store bot and texture shader information.&nbsp; The .bsp
+  file is stored in what is called a IBSP format.&nbsp; That means that the
+  length and offsets of different sections in the file are stored in what's know
+  as <b>lumps</b>.&nbsp; The older version of Quake use this same lump format,
+  but different information is stored in each version of Quake.&nbsp; If you can
+  read in Quake 3 levels, it's not a lot of changes to write a Quake 2 level
+  loader.
+  </p>
+  <p class="MsoNormal">If you don't know what <b>BSP</b> stands for yet, it
+  means <b>Binary Space Partition(ing)</b>.&nbsp; You would create a BSP
+  tree.&nbsp; That means that there is a parent node, and at most, 2 children attached
+  to each parent.&nbsp; These children are called the <b>front </b>and <b>back </b>children.&nbsp;
+  I won't attempt to teach you how to create or manage a BSP tree here, but
+  there is a BSP FAQ that SGI put out floating around the internet somewhere
+  that has a ton of information.&nbsp; Better yet, I suggest you take the BSP
+  class at <a href="http://www.GameInstitute.com"><b>www.GameInstitute.com</b></a>.&nbsp;
+  I personally took this class and was quite satisfied.&nbsp; It teaches all you
+  need to know about BSP trees.
+  </p>
+  <p class="MsoBodyText">
+  &nbsp;
+  </p>
+  <table width="572">
+    <tr bgColor="#2165ae">
+      <td height="17" width="564"><b><font size="5">Lumps</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">
+  Like we mentioned before, lumps hold the length in bytes and offset into the
+  file for a given section.&nbsp; Below is an enum <b>eLumps</b> that holds all
+  the lumps and their order in the file:
+  </p>
+  <p class="MsoBodyText"><code>
+  enum <b> eLumps</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; kEntities = 0,&nbsp;&nbsp;&nbsp;&nbsp; // Stores
+  player/object positions, etc...<br>
+  &nbsp;&nbsp;&nbsp; kTextures,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // Stores texture information<br>
+  &nbsp;&nbsp;&nbsp; kPlanes,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // Stores the splitting planes<br>
+  &nbsp;&nbsp;&nbsp; kNodes,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // Stores the BSP nodes<br>
+  &nbsp;&nbsp;&nbsp; kLeafs,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // Stores the leafs of the nodes<br>
+  &nbsp;&nbsp;&nbsp; kLeafFaces,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+  Stores the leaf's indices into the faces<br>
+  &nbsp;&nbsp;&nbsp; kLeafBrushes,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Stores the
+  leaf's indices into the brushes<br>
+  &nbsp;&nbsp;&nbsp; kModels,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // Stores the info of world models<br>
+  &nbsp;&nbsp;&nbsp; kBrushes,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // Stores the brushes info (for collision)<br>
+  &nbsp;&nbsp;&nbsp; kBrushSides,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Stores
+  the brush surfaces info<br>
+  &nbsp;&nbsp;&nbsp; kVertices,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // Stores the level vertices<br>
+  &nbsp;&nbsp;&nbsp; kMeshVerts,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+  Stores the model vertices offsets<br>
+  &nbsp;&nbsp;&nbsp; kShaders,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // Stores the shader files (blending, anims..)<br>
+  &nbsp;&nbsp;&nbsp; kFaces,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // Stores the faces for the level<br>
+  &nbsp;&nbsp;&nbsp; kLightmaps,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+  Stores the lightmaps for the level<br>
+  &nbsp;&nbsp;&nbsp; kLightVolumes,&nbsp;&nbsp;&nbsp;&nbsp; // Stores extra
+  world lighting information<br>
+  &nbsp;&nbsp;&nbsp; kVisData,&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // Stores PVS and cluster info (visibility)<br>
+  &nbsp;&nbsp;&nbsp; kMaxLumps&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // A constant to store the number of lumps<br>
+  };<br>
+  <br>
+  <font face="Times New Roman" size="3">Each on of these sections has a offset
+  and a size in bytes that need to be read in.&nbsp; In the next sections we
+  will examine the structures needed to read in each lump.</font></code>
+  </p>
+  <p class="MsoBodyText"><code><font face="Times New Roman" size="3">Here is a
+  lump structure.&nbsp; The <b>offset</b> is the position into the file that is
+  the starting point of the current section.&nbsp; The <b>length</b> is the
+  number of bytes that this lump stores.</font></code>
+  </p>
+  <p class="MsoBodyText">
+  <code><br>
+  struct <b>tBSPLump</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; int offset;<br>
+  &nbsp;&nbsp;&nbsp; int length;<br>
+  };</code>
+  </p>
+  <p class="MsoBodyText">
+  <br>
+  Let's give an example of reading in the vertices (<b>kVertices</b>) for the
+  level.&nbsp; Once the lumps are read in, to find the number of vertices in the
+  level we do this:
+  </p>
+  <p class="MsoBodyText">
+  numOfVerts = lumps[kVertices].length / sizeof(tBSPVertex);
+  </p>
+  <p class="MsoBodyText">We index the <b>lumps[]</b> array with the <b>kVertices</b>
+  constant, then divide that lumps <b>length</b> by the size of the <b>tBSPVertex</b>
+  structure in bytes, which we will define later on.&nbsp; It just so happens
+  it's 44 bytes.&nbsp; If the length is 3388, then 3388 / 44 = 77.&nbsp; We now
+  know there is 77 vertices in the .bsp file.&nbsp; We then need to position the
+  file pointer to the lump's <b>offset</b>, and start reading in 77 <b>tBSPVertex
+  </b>structures into our dynamically allocated vertex array.&nbsp; I use <b>fread()</b>
+  and <b>fseek()</b> for the file manipulation.&nbsp; This is of course, ONLY if
+  you are not reading from the .zip file.&nbsp; I am strictly speaking of
+  loading the .bsp file unzipped.
+  </p>
+  <p class="MsoBodyText">Now that we understand the basics of lumps, let's move
+  on to the header structure, along with the rest of the structures for each
+  lump read in.<br>
+  </p>
+  <p class="MsoBodyText">&nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">BSP Header</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">The very first thing that needs to be read in for the .bsp
+  file is the header.&nbsp; The header contains a 4 character ID, then an
+  integer that holds the version.
+  </p>
+  <p class="MsoBodyText">
+  <code>
+  <br>
+  struct <b> tBSPHeader</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; char strID[4];&nbsp;&nbsp;&nbsp;&nbsp; // This should
+  always be 'IBSP'<br>
+  &nbsp;&nbsp;&nbsp; int version;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // This
+  should be 0x2e for Quake 3 files<br>
+  };
+  </code>
+  </p>
+  <p class="MsoBodyText">
+  &nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Vertices</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">
+  This structure stores the vertex information.&nbsp; There is a position,
+  texture and lightmap coordinates, the vertex normal and color.&nbsp; To
+  calculate the number of vertices in the lump you divide the length of the lump
+  by the sizeof(<b>tBSPVertex</b>).
+  </p>
+  <p class="MsoBodyText">
+  <code>
+  <br>
+  struct <b> tBSPVertex</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; float vPosition[3];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // (x, y,
+  z) position.&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; float vTextureCoord[2];&nbsp; // (u, v) texture coordinate<br>
+  &nbsp;&nbsp;&nbsp; float vLightmapCoord[2]; // (u, v) lightmap coordinate<br>
+  &nbsp;&nbsp;&nbsp; float vNormal[3];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // (x, y, z) normal vector<br>
+  &nbsp;&nbsp;&nbsp; byte color[4];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // RGBA color for the vertex&nbsp;<br>
+  };<br>
+  </code>
+  </p>
+  <p class="MsoBodyText">
+  &nbsp;
+  </p>
+  <table width="571">
+    <tr bgColor="#2165ae">
+      <td height="17" width="563"><b><font size="5">Faces</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">
+  This structure holds the face information for each polygon of the level.&nbsp;
+  It mostly holds indices into all the vertex and texture arrays.&nbsp; To
+  calculate the number of faces in the lump you divide the length of the lump by
+  the sizeof(<b>tBSPFace</b>).
+  </p>
+  <p class="MsoBodyText"><code>
+  <br>
+  struct <b>tBSPFace</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; int textureID;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+  The index into the texture array&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int effect;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The index for the effects (or -1 = n/a)&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int type;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // 1=polygon, 2=patch, 3=mesh, 4=billboard&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int vertexIndex;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // The index
+  into this face's first vertex&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int numOfVerts;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // The
+  number of vertices for this face&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int meshVertIndex;&nbsp;&nbsp;&nbsp; // The index into the
+  first meshvertex&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int numMeshVerts;&nbsp;&nbsp;&nbsp;&nbsp; // The number of
+  mesh vertices&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int lightmapID;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // The
+  texture index for the lightmap&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int lMapCorner[2];&nbsp;&nbsp;&nbsp; // The face's lightmap
+  corner in the image&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int lMapSize[2];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // The size
+  of the lightmap section&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; float lMapPos[3];&nbsp;&nbsp;&nbsp;&nbsp; // The 3D origin of
+  lightmap.&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; float lMapBitsets[2][3]; // The 3D space for s and t unit vectors.&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; float vNormal[3];&nbsp;&nbsp;&nbsp;&nbsp; // The face
+  normal.&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int size[2];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The bezier patch dimensions.&nbsp;<br>
+  };<br>
+  <br>
+  <br>
+  <font size="3" face="Times New Roman">If the face <b>type</b> is 1 (normal
+  polygons), the vertexIndex and numOfVerts can be used to index into the vertex
+  array to render triangle fans.<br>
+  <br>
+  If the face <b>type</b> is 2 (bezier path), the vertexIndex and numOfVerts act
+  as a 2D grid of control points, where the grid dimensions are described by the
+  size[2] array.&nbsp; You can render the bezier patches with just the vertices
+  and not fill in the curve information, but it looks horrible and
+  blocky.&nbsp;&nbsp;</font></code>
+  </p>
+  <p class="MsoBodyText"><code><font size="3" face="Times New Roman">The point
+  of the curved surfaces are to be able to create a more defined surface,
+  depending on the specs of the computer that is running that application.&nbsp;
+  Some computers with horrible speed and video cards would make the smallest
+  amount of polygons from the curve, where as the fast computers using Geforce
+  cards could use the highest amount of polygons to form a perfect curve.<br>
+  <br>
+  If the face <b>type</b> is 3 (mesh vertices), the vertexIndex and numOfVerts
+  also work the same as if the <b>type</b> is 1<br>
+  <br>
+  If the face <b>type</b> is 4, the vertexIndex is the position of the
+  billboard.&nbsp; The billboards are used for light effects such as flares,
+  etc...</font></code>
+  </p>
+  <p class="MsoBodyText">
+  &nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Textures</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">The texture structure stores the name of the texture,
+  along with some surface information which are associated with the brush, brush
+  sides and faces.&nbsp; To calculate the number of textures in the lump you
+  divide it's&nbsp; <b>length</b> by the sizeof(<b>tBSPTexture</b>).
+  </p>
+  <p class="MsoBodyText">
+  <code>
+  <br>
+  struct <b> tBSPTexture</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; char strName[64];&nbsp;&nbsp; // The name of the texture
+  w/o the extension&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int flags;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The surface flags (unknown)&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int contents;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // The
+  content flags&nbsp;(unknown)<br>
+  };<br>
+  <br>
+  </code>
+  </p>
+  <p class="MsoBodyText">
+  &nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Lightmaps</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">Unlike the textures, the lightmaps are stored in the .bsp
+  file as 128x128 RGB images.&nbsp; Many faces share the same lightmap with
+  their own section of it stored in the lightmap UV coordinates.&nbsp; Once you
+  read in the lightmaps, you will want to create textures from them.&nbsp; To
+  calculate the number of lightmaps&nbsp; in the lump you divide the <b> length</b> of
+  the lump by the sizeof(<b>tBSPLightmap</b>).
+  </p>
+  <p class="MsoBodyText">
+  <code>
+  <br>
+  struct <b>tBSPLightmap</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; byte imageBits[128][128][3];&nbsp;&nbsp; // The RGB data in
+  a 128x128 image<br>
+  };<br>
+  <br>
+  </code>
+  </p>
+  <p class="MsoBodyText">
+  &nbsp;
+  </p>
+  <table width="571">
+    <tr bgColor="#2165ae">
+      <td height="17" width="563"><b><font size="5">Nodes</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">The node structure holds the nodes that make up the BSP
+  tree.&nbsp; The BSP is not used for rendering so much in Quake3, but for
+  collision detection.&nbsp; The node holds the splitter <b>plane</b> index, the
+  <b>front</b> and <b>back</b> index, along with the bounding box for the
+  node.&nbsp; If the <b>front</b> or <b>back</b> indices are negative, then it's
+  an index into the leafs array.&nbsp; Since negative numbers can't constitute
+  an array index, you need to use the ~ operator or -(index&nbsp; + 1) to find
+  the correct index.&nbsp; This is because 0 is the starting index.&nbsp; To
+  calculate the number of nodes in the lump you divide the <b> length</b> of the lump by
+  the sizeof(<code><b>t</b></code><code><b>BSP</b></code><code><b>Node</b></code>).
+  </p>
+  <p class="MsoBodyText">
+  <code>
+  <br>
+  struct <b> tBSPNode</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; int plane;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // The index into
+  the planes array&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int front;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // The child index
+  for the front node&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int back;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // The child
+  index for the back node&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int mins[3];&nbsp;&nbsp;&nbsp; // The bounding box min
+  position.&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int maxs[3];&nbsp;&nbsp;&nbsp; // The bounding box max
+  position.&nbsp;<br>
+  };</code>
+  </p>
+  <p class="MsoBodyText">
+  &nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Leafs</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">The leafs, like the faces, are a very important part of
+  the BSP information.&nbsp; They store the&nbsp; visibility cluster, the area
+  portal, the leaf bounding box, the index into the faces, the number of leaf
+  faces, the index into the brushes for collision, and finally,&nbsp; the number
+  of leaf brushes.&nbsp; To calculate the number of leafs in the lump you divide
+  the <b> length</b> of the lump by the sizeof(<code><b>t</b></code><code><b>BSP</b></code><code><b>Leaf</b></code>).
+  </p>
+  <p class="MsoBodyText">
+  <code>
+  <br>
+  struct <b> tBSPLeaf</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; int cluster;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The visibility cluster&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int area;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The area portal&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int mins[3];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The bounding box min position&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int maxs[3];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The bounding box max position&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int leafface;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The first index into the face array&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int numOfLeafFaces;&nbsp;&nbsp;&nbsp; // The number of
+  faces for this leaf&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int leafBrush;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The first index for into the brushes&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int numOfLeafBrushes;&nbsp; // The number of brushes for
+  this leaf&nbsp;<br>
+  };
+  </code>
+  </p>
+  <p class="MsoBodyText">
+  &nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Leaf Faces</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">The leaf faces are used to index into <b>tBSPFace</b>s
+  array.&nbsp; You might at first think this is strange to have the <b>tBSPLeaf</b>
+  structure have an index into the <b>pLeafFace</b>s array, which in turn is
+  just an index into the <b>tBSPFace</b>s array.&nbsp; This is because it's set
+  up to start with a starting point (<b>leafface</b>) and a count to go from
+  there for each face (<b>numOfLeafFaces</b>).&nbsp; The faces array is not
+  contiguous (in a row) according to each leaf.&nbsp; That is where the leaf
+  faces array comes into play.&nbsp; It's kinda like the same concept of model
+  loaders where they store the vertices and then have faces that store the
+  indices into the vertex array for that face.&nbsp; To calculate the number of
+  leaf faces in the lump you divide the <b>length</b> of the lump by the sizeof(<b>int</b>).&nbsp;
+  </p>
+  <p class="MsoBodyText">
+  <code>int *pLeafFaces;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The index into the face array</code>
+  </p>
+  <p class="MsoBodyText">
+  &nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Planes</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">The plane structure stores the normal to the plane and
+  it's distance to the origin.&nbsp; We use this as the splitter plane for the
+  BSP tree.&nbsp; When rendering or testing collision, we can test the camera
+  position against the planes to see which plane we are in front of.&nbsp; To
+  calculate the number of planes in the lump you divide the <b> length</b> of the lump
+  by the sizeof(<code><b>t</b></code><code><b>BSP</b></code><code><b>Plane</b></code>).
+  <code>
+  <br>
+  <br>
+  struct <b> tBSPPlane</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; float vNormal[3];&nbsp;&nbsp;&nbsp;&nbsp; //  Plane normal.&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; float d;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The plane distance from origin&nbsp;<br>
+  };<br>
+  <br>
+  </code>
+  </p>
+  <p class="MsoBodyText">&nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Visibility Data</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">The visibility information is comprised of a bunch of
+  bitsets that store a bit for every cluster.&nbsp; This is because the
+  information is so massive that this way makes it faster to access and a
+  smaller memory footprint.&nbsp; There is only one instance of this structure,
+  but you calculate how much needs to be read in bytes by either: numOfClusters *
+  bytesPerCluster, or minute the size of 2 integers from this lumps length.&nbsp; The
+  pBitsets is then dynamically allocated and stores the calculate bytes.&nbsp; This
+  is probably one of the most confusing parts about the .bsp file format, the
+  visibilty.&nbsp; I will try and explain the important parts of it and give
+  some code.
+  </p>
+  <p class="MsoBodyText">
+  <code>
+  <br>
+  </code>
+  <code>struct <b> tBSPVisData</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; int numOfClusters;&nbsp;&nbsp; // The number of clusters<br>
+  &nbsp;&nbsp;&nbsp; int bytesPerCluster;		// Bytes (8 bits) in the cluster's bitset<br>
+  &nbsp;&nbsp;&nbsp; byte *pBitsets;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Array of bytes
+  holding the cluster vis.<br>
+  };</code>
+  </p>
+  <p class="MsoBodyText">
+  To demonstrate what a cluster is and what we need to do with it, let's start
+  with a simple example.&nbsp; When rendering, first we want to find which leaf
+  we are in.&nbsp; Once again, a leaf is an end node of the BSP tree that holds
+  a bunch of information about the faces, brushes and the cluster it's in.&nbsp;
+  Once that leaf is founding by checking the camera position against all of the
+  planes, we then want to go through all of the leafs and check if their cluster
+  is visible from the current cluster we are in.&nbsp; If it is, that means that
+  we need to check if that leaf's bounding box is inside of our frustum before
+  we draw it.&nbsp;&nbsp;
+  </p>
+  <p class="MsoBodyText">
+  Say we have cluster A, B and C.&nbsp; Each cluster is stored as a bit in
+  bitset.&nbsp; A bitset is just a huge list of binary numbers next to each
+  other.&nbsp; Each cluster has their own list of bits that store a 1 or a 0 to
+  tell if the cluster in that bit is visible (1) or not visible (0).&nbsp; Since
+  there is most likely more than 32 clusters in a level, you can't just use an
+  integer (32-bits) to store the bits for all the clusters.&nbsp; This is why
+  there are many <b>bytes</b> assigned to each cluster.&nbsp; So, here is how it
+  works:
+  </p>
+  <p class="MsoBodyText">
+  With cluster A, B and C, here is how they would be represented in binary (a
+  bitset):
+  </p>
+  <p class="MsoBodyText">
+  ABC<br>
+  000
+  </p>
+  <p class="MsoBodyText">
+  Each 0 represents a slot that is assigned to a cluster.&nbsp; Let's assume
+  that:
+  </p>
+  <p class="MsoBodyText">
+  - Cluster A can see cluster B and not C<br>
+  - Cluster B can see cluster A and C<br>
+  - Cluster C can see cluster B and not A
+  </p>
+  <p class="MsoBodyText">
+  Below is a representation of each one of their bitsets:
+  </p>
+  <p class="MsoBodyText">
+  - A&nbsp;&nbsp;&nbsp;&nbsp; 110<br>
+  - B&nbsp;&nbsp;&nbsp;&nbsp; 111<br>
+  - C&nbsp;&nbsp;&nbsp;&nbsp; 011
+  </p>
+  <p class="MsoBodyText">Does that make sense?&nbsp; Notice for A there is a 1
+  in the first slot which means it can see itself, and also in the second slot
+  which means it can see cluster B.&nbsp; The last slot is a 0, which tells us
+  that cluster A can not see what's in cluster C because some walls or whatever
+  are blocking it.&nbsp; This is where the good spatial partition speed comes
+  in.&nbsp; If you are in the very bottom corner of the level in a small little
+  room, you just cut out probably 95% percent of the polygons that need to be
+  rendered because you can only most likely see the cluster that is right
+  outside of that room.
+  </p>
+  <p class="MsoBodyText">To test if a cluster is visible from another cluster,
+  there is obviously going to have to be some bit-shifting and other binary math
+  involved.&nbsp; The basic algorithm to test a cluster against another cluster
+  is as follows:
+  </p>
+  <p class="MsoBodyText">int visible = pBitsets[currentCluster*bytesPerCluster + (
+  testCluster/8 )] &amp; (1 &lt;&lt; (testCluster &amp; 7))&nbsp;
+  </p>
+  <p class="MsoBodyText">If the result of <b>visible</b> isn't 0, then the <b>testCluster</b>
+  can be seen from the <b>currentCluster</b>.&nbsp; We divide and % (mod) by 8
+  because we are using <b>byte</b>s which are 8 bits.&nbsp; Basically, the first
+  part is indexing into the array of clusters to find the correct bitset, then
+  we do a binary &amp; (and) with the cluster we are testing to get the result.
+  </p>
+  <p class="MsoBodyText">Here is some basic code to do a cluster to cluster
+  test:
+  </p>
+  <p class="MsoBodyText">
+  <font face="Courier New" size="2">inline int <b>IsClusterVisible</b>(t</font><code>BSP</code><font face="Courier New" size="2">VisData
+  *pPVS, int current, int test)<br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; if(!pPVS-&gt;pBitsets || current &lt; 0) return 1;<br>
+  <br>
+  &nbsp;&nbsp;&nbsp; byte visSet = pPVS-&gt;pBitsets[(current*pPVS-&gt;bytesPerCluster) + (test/8)];<br>
+  &nbsp;&nbsp;&nbsp; int result = visSet &amp; (1 &lt;&lt; (test &amp; 7));<br>
+  <br>
+  &nbsp;&nbsp;&nbsp; return ( result );<br>
+  }</font>
+  </p>
+  <p class="MsoBodyText">
+  &nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Entities</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">The entity lump just stores a huge string with each
+  line delimited by '\n'.&nbsp; Some types of things stored in this string is
+  the deathmatch positions for the players in the beginning, weapon positions,
+  sky box information, light positions, etc...&nbsp; I suggest you save it off
+  to a file so that you can get a good idea on how to parse it.&nbsp; Be careful
+  when writing a parser, things aren't always saved in the same order.&nbsp;
+  Player positions usually store the 3D position on the map, along with the
+  orientation described by a rotation angle.&nbsp; To find the length of the
+  entity string to read in, just divide the entity lump's <b>length </b>by
+  sizeof(<b>char</b>).
+  </p>
+  <p class="MsoBodyText">char *<b>strEntities</b>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // This stores a huge string of all the entities in the level
+  </p>
+  <p class="MsoBodyText">&nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Brushes</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">The brushes store information about a convex volume,
+  which are defined by the brush sides.&nbsp; Brushes are used for collision
+  detection.&nbsp; This allows the level editor to decide what is collidable and
+  what can be walked through, such as trees, bushes or certain corners.
+  </p>
+  <p class="MsoBodyText">
+  <code><font size="2" face="Courier New">struct <b>tBSPBrush</b>&nbsp;<br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; int brushSide;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The starting brush side for the brush&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int numOfBrushSides;&nbsp;&nbsp;&nbsp;&nbsp; // Number of
+  brush sides for the brush<br>
+  &nbsp;&nbsp;&nbsp; int textureID;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The texture index for the brush<br>
+  };</font></code>
+  </p>
+  <p class="MsoBodyText">
+  &nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Leaf Brushes</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">Like the leaf faces, leaf brushes are used to index
+  into the <b>tBSPBrush</b> array.&nbsp; Once again, brushes are used for
+  collision detection.&nbsp; To calculate the number of leaf brushes in the lump
+  you divide the <b>length</b> of the lump by the sizeof(<b>int</b>).&nbsp;
+  </p>
+  <p class="MsoBodyText">
+  <code>int *<font size="2"><b>pLeafBrushes</b></font>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The index into the brush array</code>
+  </p>
+  <p class="MsoBodyText">&nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Brush Sides</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">The brush sides lump stores information about the brush
+  bounding surface.&nbsp; To calculate the number of brush sides, just divide
+  the lumps <b>length</b> by sizeof(<b>tBSPBrushSides</b>).
+  </p>
+  <p class="MsoBodyText">
+  <font size="2" face="Courier New">struct <b>tBSPBrushSide</b>&nbsp;<br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; int
+  plane;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The plane index<br>
+  &nbsp;&nbsp;&nbsp; int textureID;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The texture index<br>
+  };</font>
+  </p>
+  <p class="MsoBodyText">&nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Models</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">The model structure stores the face and brush
+  information, along with the bounding box of the object.&nbsp; These objects
+  can be movable such as doors, platforms, etc...&nbsp; To calculate the number
+  of models in this lump, just divide the <b>length</b> of the lump by sizeof(<b>tBSPModel</b>).
+  </p>
+  <p class="MsoBodyText">
+  <font size="2" face="Courier New">struct <b> tBSPModel</b>&nbsp;<br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; float min[3];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The min position for the bounding box<br>
+  &nbsp;&nbsp;&nbsp; float max[3];&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The max position for the bounding box.&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int faceIndex;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The first face index in the model&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int numOfFaces;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The number of faces in the model&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int brushIndex;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The first brush index in the model&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int numOfBrushes;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+  The number brushes for the model<br>
+  };</font>
+  </p>
+  <p class="MsoBodyText">&nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Mesh Vertices</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">This stores a list of vertex offsets that are used to
+  create a triangle mesh.&nbsp; To calculate the number of mesh vertices in the
+  lump you divide the <b>length</b> of the lump by the sizeof(<b>int</b>).&nbsp;
+  </p>
+  <p class="MsoBodyText"><code>int *<font size="2"><b>pMeshVerts</b></font>;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // The vertex offsets for a mesh</code>
+  </p>
+  <p class="MsoBodyText">&nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Shaders</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">The shader structure basically gives you the file name,
+  for a *.shader file.&nbsp; The .shader file then stores all of the information
+  about blending, animating and such.&nbsp; The shader files can be found
+  usually in the scripts\ folder, assuming that there are any textures in the
+  level that use shaders of course.&nbsp; To calculate the number of shaders for
+  this lump, just divide the <b>length</b> of the lump by sizeof(<b>tBSPShader</b>).
+  </p>
+  <p class="MsoBodyText"><font size="2" face="Courier New">struct <b> tBSPShader</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; char strName[64];&nbsp;&nbsp;&nbsp;&nbsp; // The name of
+  the shader file&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int brushIndex;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // The
+  brush index for this shader&nbsp;<br>
+  &nbsp;&nbsp;&nbsp; int unknown;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  // This is 99% of the time 5<br>
+  };</font>
+  </p>
+  <p class="MsoBodyText">&nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Light Volumes</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">Not everything in Quake3 is lit by lightmaps.&nbsp;
+  There are other lights that have their own special properties.&nbsp; I believe
+  you can get the rest of the light information from the entities lump.&nbsp; To
+  calculate the number of lights in the lump, just divide the <b>length</b> of
+  the lump by sizeof(<b>tBSPLights</b>).</p>
+  <p class="MsoBodyText">
+  <font size="2" face="Courier New">struct <b> tBSPLights</b><br>
+  {<br>
+  &nbsp;&nbsp;&nbsp; ubyte ambient[3];&nbsp;&nbsp;&nbsp;&nbsp; // This is the
+  ambient color in RGB<br>
+  &nbsp;&nbsp;&nbsp; ubyte directional[3];	// This is the directional color in
+  RGB<br>
+  &nbsp;&nbsp;&nbsp; ubyte direction[2];&nbsp;&nbsp; // The direction of the
+  light: [phi,theta]&nbsp;<br>
+  };</font>
+  </p>
+  <p class="MsoBodyText"><font face="Times New Roman" size="3">The light data </font><font face="Times New Roman" size="3">makes up a
+  3-Dimensional grid with dimensions of:&nbsp;<br>
+  </font><br>
+  <font face="Courier New" size="2">x = floor(models[0].max[0] / 64)&nbsp; -
+  ceil(models[0].min[0] / 64)&nbsp; + 1<br>
+  y = floor(models[0].max[1] / 64)&nbsp; - ceil(models[0].min[1] / 64)&nbsp; + 1<br>
+  z = floor(models[0].max[2] / 128) - ceil(models[0].min[2] / 128) + 1&nbsp;</font>
+  </p>
+  <p class="MsoBodyText">&nbsp;
+  </p>
+  <table width="570">
+    <tr bgColor="#2165ae">
+      <td height="17" width="562"><b><font size="5">Conclusion</font></b></td>
+    </tr>
+  </table>
+  <p class="MsoBodyText">
+  This is an on going project to add to this file, so if you have any pointers,
+  corrections, or additions, let me know and I will post them.&nbsp; Once again,
+  this was used as a tag along with the BSP tutorial series on <a href="http://www.GameTutorials.com">www.GameTutorials.com</a>.&nbsp;
+  I would
+  like to thanks these people for their HUGE help on creating this document and
+  understanding the .bsp file format:
+  </p>
+  <p class="MsoBodyText">
+  Kekoa Proudfoot - <font size="3">kekoa@graphics.stanford.edu </font></O:P>
+  </p>
+  <p class="MsoBodyText">Bart Sekura - bsekura@poland.com</p>
+  <p class="MsoBodyText">Ignacio Castano - titan@talika.fie.us.es</p>
+  <p class="MsoBodyText">Emmanuel Weber - weberemmanuel@hotmail.com</p>
+  <p class="MsoBodyText"><br>
+  Ben “DigiBen” Humphrey<br>
+  Game Programmer<br>
+  DigiBen@GameTutorials.com<br>
+  Co-Web Host of <a href="http://www.gametutorials.com/">www.GameTutorials.com</a></p>
+  <p class="MsoBodyText">The Quake3 file format is owned by ID Software.  This tutorial is being used
+  as a teaching tool to help understand level loading and advanced 3D topics.
+  All right reserved.
+  
+  
+   
+
+    			  		
+					</td>
+                </tr>
+				<tr>    
+					<!-- news archives -->
+				</tr>   
+                				
+				<tr>
+	    	        <td align="center" width="559"> 
+                       <p><br><br><br><br></p>
+							<p><font face="arial,sans-serif" size="1">©2001-2002
+                        GameTutorials.&nbsp; All rights are reserved.</font></p>
+					</td>
+            	</tr>
+				</table>
+			</td>
+		</tr>
+		</table>
+	</td>
+	<!-- right column -->
+	<td valign="top" width="172" background="http://www.gametutorials.com/images/Right_Seamless.jpg">
+        <map name="FPMap1">
+        <area href="http://www.gametutorials.com/Orders.htm" shape="rect" coords="19, 264, 167, 374"></map><img border="0" src="http://www.gametutorials.com/images/Right.jpg" usemap="#FPMap1" width="171" height="422">
+	</td>
+</tr>
+</table>
+
+
+</body>
+
+</html>
